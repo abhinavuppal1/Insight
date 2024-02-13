@@ -14,7 +14,6 @@ from langchain.callbacks.streamlit.streamlit_callback_handler import StreamlitCa
 
 def format_docs(docs):
     res = ""
-    # res = str(docs)
     for doc in docs:
         escaped_page_content = doc.page_content.replace("\n", "\\n")
         res += "<doc>\n"
@@ -265,8 +264,10 @@ def get_agent_chain(file_name="UserGuide.pdf", index_folder="index", callbacks=N
         | OpenAIToolsAgentOutputParser()
     )
 
-    agent_executor = AgentExecutor(agent=agent, tools=lc_tools, verbose=True, callbacks=callbacks)
-    return agent_executor
+    agent_executor_obj = AgentExecutor(agent=agent, tools=lc_tools,
+                                       verbose=True,
+                                       callbacks=callbacks)
+    return agent_executor_obj
 
 
 if __name__ == "__main__":

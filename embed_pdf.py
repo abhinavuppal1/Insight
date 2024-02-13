@@ -47,7 +47,7 @@ def embed_all_pdf_docs():
         raise Exception(f"Directory '{pdf_directory}' does not exist.")
 
 
-def get_all_index_files():
+def get_all_index_files() -> list:
     # Define the directory path
     index_directory = "index"
 
@@ -64,6 +64,7 @@ def get_all_index_files():
         if index_files:
             return index_files
         else:
-            raise Exception("No index files found in the directory.")
+            print("No index files found in the directory.")
+            return None
     else:
         raise Exception(f"Directory '{index_directory}' does not exist.")
