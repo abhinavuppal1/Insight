@@ -5,7 +5,8 @@ from functools import wraps
 
 def bind_logger(toolClass):
     class newToolClass(toolClass):
-        def __init__(self, tool_name: str, st_cb: StreamlitCallbackHandler, *args, **kwargs):
+        def __init__(self, tool_name: str, st_cb: StreamlitCallbackHandler,
+                     *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.st_cb = st_cb
             self.tool_name = tool_name
