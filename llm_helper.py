@@ -1,4 +1,5 @@
 from typing import Optional
+from operator import itemgetter
 
 # langchain imports
 from langchain_openai import ChatOpenAI
@@ -7,7 +8,6 @@ from langchain.prompts.prompt import PromptTemplate
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
-from operator import itemgetter
 from langchain.schema.messages import HumanMessage, SystemMessage, AIMessage
 from langchain.callbacks.streamlit.streamlit_callback_handler import StreamlitCallbackHandler
 
@@ -24,6 +24,7 @@ def format_docs(docs):
     return res
 
 
+# Load the specified search index
 def get_search_index(file_name="UserGuide.pdf", index_folder="index"):
     # load embeddings
     from langchain_community.vectorstores import FAISS
@@ -37,40 +38,45 @@ def get_search_index(file_name="UserGuide.pdf", index_folder="index"):
     return search_index
 
 
-def convert_message(m):
+def convert_message(m: dict):
+    """Convert message dict to format required by langchain
+    """
     if m["role"] == "user":
         return HumanMessage(content=m["content"])
-    elif m["role"] == "assistant":
+    if m["role"] == "assistant":
         return AIMessage(content=m["content"])
-    elif m["role"] == "system":
+    if m["role"] == "system":
         return SystemMessage(content=m["content"])
-    else:
-        raise ValueError(f"Unknown role {m['role']}")
+
+    raise ValueError(f"Unknown role {m['role']}")
 
 
-_condense_template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
+_CONDENSE_TEMPLATE = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its original language.
 
 Chat History:
 {chat_history}
 Follow Up Input: {input}
 Standalone question:"""
-CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_condense_template)
+# Normalize the question into a better question for LLM, based on the context
+CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_CONDENSE_TEMPLATE)
 
-_rag_template = """Answer the question based only on the following context, citing the page number(s) of the document(s) you used to answer the question:
+_RAG_TEMPLATE = """Answer the question based only on the following context, \
+    citing the page number(s) of the document(s) you used to answer the \
+    question. Answer the question like an academic researcher.
 {context}
 
 Question: {question}
 """
-ANSWER_PROMPT = ChatPromptTemplate.from_template(_rag_template)
+ANSWER_PROMPT = ChatPromptTemplate.from_template(_RAG_TEMPLATE)
 
 
 def _format_chat_history(chat_history):
     def format_single_chat_message(m):
-        if type(m) is HumanMessage:
+        if isinstance(m, HumanMessage):
             return "Human: " + m.content
-        elif type(m) is AIMessage:
+        if isinstance(m, AIMessage):
             return "Assistant: " + m.content
-        elif type(m) is SystemMessage:
+        if isinstance(m, SystemMessage):
             return "System: " + m.content
         else:
             raise ValueError(f"Unknown role {m['role']}")
@@ -93,6 +99,8 @@ def get_standalone_question_from_chat_history_chain():
 def get_rag_chain(file_name="UserGuide.pdf",
                   index_folder="index",
                   retrieval_cb=None):
+    """Get search chain to be used for this operation
+    """
     vectorstore = get_search_index(file_name, index_folder)
     retriever = vectorstore.as_retriever()
 
@@ -205,6 +213,7 @@ def get_rag_fusion_chain(file_name="UserGuide.pdf", index_folder="index", retrie
 
 ####################
 # Adding agent chain with OpenAI function calling
+# Everything after this is used only in this file and not called from any other classes
 
 def get_search_tool_from_index(search_index, st_cb: Optional[StreamlitCallbackHandler] = None, ):
     from langchain.agents import tool
@@ -221,15 +230,22 @@ def get_search_tool_from_index(search_index, st_cb: Optional[StreamlitCallbackHa
     return search
 
 
-def get_lc_oai_tools(file_name:str = "UserGuide.pdf", index_folder: str = "index", st_cb: Optional[StreamlitCallbackHandler] = None, ):
+# Only used in main of this file. Not used from other files
+def get_lc_oai_tools(file_name: str = "UserGuide.pdf",
+                     index_folder: str = "index",
+                     st_cb: Optional[StreamlitCallbackHandler] = None, ):
     from langchain.tools.render import format_tool_to_openai_tool
     search_index = get_search_index(file_name, index_folder)
-    lc_tools = [get_search_tool_from_index(search_index=search_index, st_cb=st_cb)]
+    lc_tools = [get_search_tool_from_index(search_index=search_index,
+                                           st_cb=st_cb)]
     oai_tools = [format_tool_to_openai_tool(t) for t in lc_tools]
     return lc_tools, oai_tools
 
 
-def get_agent_chain(file_name="UserGuide.pdf", index_folder="index", callbacks=None, st_cb: Optional[StreamlitCallbackHandler] = None, ):
+# Only used in main of this file. Not used from other files
+def get_agent_chain(file_name="UserGuide.pdf", index_folder="index",
+                    callbacks=None,
+                    st_cb: Optional[StreamlitCallbackHandler] = None):
     if callbacks is None:
         callbacks = []
 
@@ -244,7 +260,7 @@ def get_agent_chain(file_name="UserGuide.pdf", index_folder="index", callbacks=N
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", "You are a helpful assistant, use the search tool to answer the user's question and cite only the page number when you use information coming (like [p1]) from the source document.\nchat history: {chat_history}"),
+            ("system", "You are a helpful assistant, use the search tool to answer the user's question and cite only the page number or source when you use information coming (like [p1]) from the source document.\nchat history: {chat_history}"),
             ("user", "{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ]

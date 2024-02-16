@@ -9,11 +9,16 @@ def embed_document(file_name, file_folder="pdf", embedding_folder="index"):
     file_path = f"{file_folder}/{file_name}"
     loader = PagedPDFSplitter(file_path)
     source_pages = loader.load_and_split()
+    with open(file=f'{file_name}.txt', mode='w', encoding='utf-8') as file_handle:
+        for page in source_pages:
+            file_handle.write(f'{os.linesep} ----------------------------------- {os.linesep}')
+            file_handle.write(f'Page Num: {page.metadata["page"]}{os.linesep}')
+            file_handle.write(page.page_content)
 
     embedding_func = OpenAIEmbeddings()
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=100,
+        chunk_size=1000,
+        chunk_overlap=200,
         length_function=len,
         is_separator_regex=False,
         separators=["\n\n", "\n", " ", ""],
@@ -53,7 +58,6 @@ def get_all_index_files() -> list:
 
     # Check if the directory exists
     if os.path.exists(index_directory):
-        # List all index files in the directory
         postfix = ".index.faiss"
         index_files = [
             file.replace(postfix, "")
