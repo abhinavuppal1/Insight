@@ -50,10 +50,11 @@ def create_app():
     index_files = embed_pdf.get_all_index_files()
     if index_files is None:
         index_files = ['No Indexes available for searching']
-        chosen_file = st.radio("Choose a file to search", index_files, index=0)
+        chosen_file = st.radio("Choose a search topic or the generic search index", index_files, index=0)
         st.write('Add some files to pdf folder and index them using the Embed button.')
         return
-    chosen_file = st.radio("Choose a file to search", index_files, index=0)
+    else:
+        chosen_file = st.radio("Choose a search topic or the generic search index", index_files, index=0)
 
     # check if openai api key is set
     if not os.getenv('OPENAI_API_KEY', '').startswith("sk-"):
