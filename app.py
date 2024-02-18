@@ -1,13 +1,14 @@
 import os
 import streamlit as st
 import embed_pdf
+import embed_url
 from llm_helper import convert_message, get_rag_chain, get_rag_fusion_chain
 
 
 def create_sidebar():
     """Create the sidebar
     """
-    secrets_file_path = os.path.join(".streamlit", "secret.toml")
+    secrets_file_path = os.path.join(".streamlit", "secrets.toml")
     if os.path.exists(secrets_file_path):
         try:
             if "OPENAI_API_KEY" in st.secrets:
@@ -28,10 +29,18 @@ def create_sidebar():
             st.sidebar.info("Embedding documents...")
             try:
                 embed_pdf.embed_all_pdf_docs()
-                st.sidebar.info("Done!")
+                st.sidebar.info("Douments Done!")
             except Exception as e:
                 st.sidebar.error(e)
                 st.sidebar.error("Failed to embed documents.")
+        if st.sidebar.button('Embed URLs'):
+            st.sidebar.info("Embedding URLs...")
+            try:
+                embed_url.embed_all_urls()
+                st.sidebar.info("URLs Done!")
+            except Exception as e:
+                st.sidebar.error(e)
+                st.sidebar.error("Failed to embed URLs.")
 
 
 def create_app():
@@ -44,6 +53,7 @@ def create_app():
         chosen_file = st.radio("Choose a file to search", index_files, index=0)
         st.write('Add some files to pdf folder and index them using the Embed button.')
         return
+    chosen_file = st.radio("Choose a file to search", index_files, index=0)
 
     # check if openai api key is set
     if not os.getenv('OPENAI_API_KEY', '').startswith("sk-"):

@@ -5,3 +5,5 @@ streamlit
 faiss-cpu
 tiktoken
 pypdf
+bs4
+PyYAML
