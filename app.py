@@ -1,8 +1,9 @@
 import os
+from PIL import Image
+import base64
 import streamlit as st
 import embed_pdf
 import embed_url
-from PIL import Image
 from llm_helper import convert_message, get_rag_chain, get_rag_fusion_chain
 
 
@@ -26,10 +27,16 @@ def create_sidebar():
             "OpenAI API Key", type="password"
         )
     else:
-        st.sidebar.image(image=Image.open('./assets/Transcribe.png'),
-                         width=300)
-        st.sidebar.image(image=Image.open('./assets/UnitedLitigationDiscovery.jpg'),
-                         width=300)
+        st.sidebar.markdown("""<a href="https://github.com/vivekuppal/transcribe">
+                            <img src="data:image/png;base64,{}" width="300"></a>""".format(
+                                base64.b64encode(open("./assets/Transcribe.png", "rb").read()).decode()),
+                            unsafe_allow_html=True,)
+        st.sidebar.markdown("""  """)
+        st.sidebar.markdown("""<a href="https://unitedlit.com">
+                            <img src="data:image/png;base64,{}" width="300"></a>""".format(
+                                base64.b64encode(open("./assets/UnitedLitigationDiscovery.jpg", "rb").read()).decode()),
+                            unsafe_allow_html=True,)
+        st.sidebar.markdown("""  """)
 
         if st.sidebar.button("Embed Documents"):
             st.sidebar.info("Embedding documents...")
