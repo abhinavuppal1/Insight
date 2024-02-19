@@ -2,6 +2,7 @@ import os
 import streamlit as st
 import embed_pdf
 import embed_url
+from PIL import Image
 from llm_helper import convert_message, get_rag_chain, get_rag_fusion_chain
 
 
@@ -25,6 +26,11 @@ def create_sidebar():
             "OpenAI API Key", type="password"
         )
     else:
+        st.sidebar.image(image=Image.open('./assets/Transcribe.png'),
+                         width=300)
+        st.sidebar.image(image=Image.open('./assets/UnitedLitigationDiscovery.jpg'),
+                         width=300)
+
         if st.sidebar.button("Embed Documents"):
             st.sidebar.info("Embedding documents...")
             try:
@@ -50,7 +56,9 @@ def create_app():
     index_files = embed_pdf.get_all_index_files()
     if index_files is None:
         index_files = ['No Indexes available for searching']
-        chosen_file = st.radio("Choose a search topic or the generic search index", index_files, index=0)
+        chosen_file = st.radio("Choose a search topic or the generic search index",
+                               index_files,
+                               index=0)
         st.write('Add some files to pdf folder and index them using the Embed button.')
         return
     else:
