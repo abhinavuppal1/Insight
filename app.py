@@ -1,5 +1,4 @@
 import os
-from PIL import Image
 import base64
 import streamlit as st
 import embed_pdf
@@ -27,27 +26,27 @@ def create_sidebar():
             "OpenAI API Key", type="password"
         )
     else:
-        st.sidebar.markdown("""<a href="https://github.com/vivekuppal/transcribe">
-                            <img src="data:image/png;base64,{}" width="300"></a>""".format(
-                                base64.b64encode(open("./assets/Transcribe.png", "rb").read()).decode()),
-                            unsafe_allow_html=True,)
-        st.sidebar.markdown("""  """)
-        st.sidebar.markdown("""<a href="https://unitedlit.com">
-                            <img src="data:image/png;base64,{}" width="300"></a>""".format(
-                                base64.b64encode(open("./assets/UnitedLitigationDiscovery.jpg", "rb").read()).decode()),
-                            unsafe_allow_html=True,)
-        st.sidebar.markdown("""  """)
+        # st.sidebar.markdown("""<a href="https://github.com/vivekuppal/transcribe">
+        #                     <img src="data:image/png;base64,{}" width="300"></a>""".format(
+        #                         base64.b64encode(open("./assets/Transcribe.png", "rb").read()).decode()),
+        #                     unsafe_allow_html=True,)
+        # st.sidebar.markdown("""  """)
+        # st.sidebar.markdown("""<a href="https://unitedlit.com">
+        #                     <img src="data:image/png;base64,{}" width="300"></a>""".format(
+        #                         base64.b64encode(open("./assets/UnitedLitigationDiscovery.jpg", "rb").read()).decode()),
+        #                     unsafe_allow_html=True,)
+        # st.sidebar.markdown("""  """)
 
-        if st.sidebar.button("Embed Documents"):
-            st.sidebar.info("Embedding documents...")
+        if st.sidebar.button("Parse Documents"):
+            st.sidebar.info("Parsing documents...")
             try:
                 embed_pdf.embed_all_pdf_docs()
                 st.sidebar.info("Douments Done!")
             except Exception as e:
                 st.sidebar.error(e)
                 st.sidebar.error("Failed to embed documents.")
-        if st.sidebar.button('Embed URLs'):
-            st.sidebar.info("Embedding URLs...")
+        if st.sidebar.button('Parse URLs'):
+            st.sidebar.info("Parsing URLs...")
             try:
                 embed_url.embed_all_urls()
                 st.sidebar.info("URLs Done!")

@@ -146,7 +146,13 @@ class INRecursiveUrlLoader(BaseLoader):
         self.prevent_outside = prevent_outside if prevent_outside is not None else True
         self.link_regex = link_regex
         self._lock = asyncio.Lock() if self.use_async else None
-        self.headers = headers
+        if headers is None:
+            # Pretend to be chrome
+            # Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36
+            # Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36
+            self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'}
+        else:
+            self.headers = headers
         self.check_response_status = check_response_status
         self.continue_on_failure = continue_on_failure
 
@@ -167,7 +173,7 @@ class INRecursiveUrlLoader(BaseLoader):
         # Get all links that can be accessed from the current URL
         visited.add(url)
         try:
-            response = requests.get(url, timeout=self.timeout, 
+            response = requests.get(url, timeout=self.timeout,
                                     headers=self.headers)
             if self.check_response_status and 400 <= response.status_code <= 599:
                 raise ValueError(f"Received HTTP status {response.status_code}")
