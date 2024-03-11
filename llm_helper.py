@@ -34,6 +34,7 @@ def get_search_index(file_name="UserGuide.pdf", index_folder="index"):
         folder_path=index_folder,
         index_name=file_name + ".index",
         embeddings=OpenAIEmbeddings(),
+        allow_dangerous_deserialization=True
     )
     return search_index
 
