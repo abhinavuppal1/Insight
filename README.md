@@ -24,3 +24,4 @@ streamlit run app.py
 
 ## Acknowledgements
 Thanks to the friendly folks at [Lappu AI](https://www.lappuai.com/) for helping me develop this project and bring it online.
+Lappu AI does AI based development and we very helpful in understanding the concepts to bring this project online. 
