@@ -21,3 +21,6 @@ Run application using the following command:
 ```sh
 streamlit run app.py
 ```
+
+## Acknowledgements
+Thanks to the friendly folks at [Lappu AI](https://www.lappuai.com/) for helping me develop this project and bring it online.
